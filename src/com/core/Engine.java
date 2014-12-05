@@ -1,170 +1,76 @@
 package com.core;
 
-import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 
 public abstract class Engine implements Runnable {
 
-	public static int WIDTH, HEIGHT;
-	public static String TITLE;
+	public int width, height;
 
 	public Thread thread;
-
-	/**
-	 * Frame that holds everything together.
-	 */
-	public Frame frame;
-
-	/**
-	 * Canvas used for applying the OpenGL.
-	 */
-	private Canvas canvas;
-
-	/**
-	 * Is the close button pressed?
-	 */
-	public boolean closeRequested = false;
-
-	private boolean running = false;
-
+	
 	public Engine(int width, int height, String title) {
-		TITLE = title;
-		WIDTH = width;
-		HEIGHT = height;
-		setup();
+
+		this.width = width;
+		this.height = height;
+
+		thread = new Thread(this, "main_thread");
+		
 	}
-
-	/**
-	 * Event that calls when engine stopped. If this is overridden, remember to
-	 * call super.onExit(); !!
-	 */
-	public void onExit() {
-		running = false;
-		try {
-			Display.destroy();
-		} catch (Exception e) {
-
-		}
-		frame.dispose();
-		System.exit(0);
-	}
-
-	/**
-	 * Call it to start the engine.
-	 */
+	
 	public void start() {
-		running = true;
 		thread.start();
-		frame.setVisible(true);
 	}
 
-	/**
-	 * Do all setup from here.
-	 */
-	public void setup() {
-		frameSetup();
+	public void run() {
+		try {			
 
-		thread = new Thread(this, "RENDER_THREAD");
+			setupDisplay();
+			setupOpenGL();
 
-	}
-
-	/**
-	 * Sets up the JFrame and adds the OpenGL element to it.
-	 */
-	public void frameSetup() {
-
-		frame = new Frame(TITLE);
-		frame.setLayout(new BorderLayout());
-		frame.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				closeRequested = true;
+			int frames = 0;
+			int fps = 0;
+			long timer = System.currentTimeMillis();
+			
+			while (!Display.isCloseRequested()) {
+				
+				frames++;
+				
+				render();
+				
+				Display.update();
+				
+				
+				
+				if (System.currentTimeMillis() > timer + 1000) {
+					timer = System.currentTimeMillis();
+					fps = frames;
+					frames = 0;
+					System.out.println("FPS: " + fps);
+				}
+				
 			}
-		});
-		canvas = new Canvas();
-		frame.add(canvas, BorderLayout.CENTER);
-
-		try {
-
-			Display.setParent(canvas);
-			Display.setVSyncEnabled(true);
-
-			frame.setPreferredSize(new Dimension(1024, 786));
-			frame.setMinimumSize(new Dimension(800, 600));
-			frame.pack();
-			frame.setVisible(true);
-			Display.create();
 
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
-
 	}
 
-	/**
-	 * Graphics setup here.
-	 */
+	public void setupDisplay() throws Exception {
+		Display.setDisplayMode(new DisplayMode(width, height));
+		Display.create();
+	}
+	
 	public void setupOpenGL() {
-
-	}
-
-	/**
-	 * Event based method on resize.
-	 */
-	public void resize() {
-
-	}
-
-	/**
-	 * Render loop.
-	 */
-	public void run() {
-		long LT = System.nanoTime();
-		long timer = System.currentTimeMillis();
-		final double ns = 1000000000.0 / 60.0;
-		double delta = 0;
-		int frames = 0;
-		int updates = 0;
-		while (running) {
-			long now = System.nanoTime();
-			delta += (now - LT) / ns;
-			LT = now;
-			while (delta >= 1) {
-				update();
-				updates++;
-				delta--;
-			}
-			if (Display.isCloseRequested() || closeRequested) {
-				onExit();
-			}
-			render();
-			try {
-				Display.update();
-			} catch (Exception e) {
-
-			}
-			frames++;
-			if (System.currentTimeMillis() - timer > 1000) {
-				timer += 1000;
-				System.out.println("FPS: " + frames + ", UPS: " + updates);
-				frames = 0;
-				updates = 0;
-			}
-		}
-		onExit();
-	}
-
-	/**
-	 * Handle background graphic stuff.
-	 */
-	public void draw() {
-
+		glMatrixMode(GL_PROJECTION);
+		glViewport(0, 0, width, height);
+		glLoadIdentity();
+//		gluPerspective((float) 80, width / height, 0.001f, 1000f);
+		glOrtho(0, width, height, 0, 1, -1);
+		glMatrixMode(GL_MODELVIEW);
 	}
 
 	public abstract void update();
