@@ -2,23 +2,23 @@ package com.core.graphics;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import org.lwjgl.util.vector.Vector3f;
+
 public class Graphics {
 
-	public static void drawCube(float x, float y, float z, float width, float height, float depth) {
+	public static void drawCube(Vector3f pos, Vector3f size) {
 
-		x -= width / 2;
-		y -= height / 2;
-		z += depth / 2;
+		float x = pos.x, y = pos.y, z = pos.z, w = size.x, h = size.y, d = size.z;
+
+		x -= w / 2;
+		y -= h / 2;
+		z += d / 2;
 
 		glBegin(GL_QUADS);
 		{
 
-			float w = width;
-			float h = height;
-			float d = depth;
-
 			// Front face
-			glColor3d(0, 1, 0);
+			glColor4d(0, 1, 0, 0.0);
 			glVertex3f(x, y, z);
 			glVertex3f(x + w, y, z);
 			glVertex3f(x + w, y + h, z);
