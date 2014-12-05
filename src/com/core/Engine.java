@@ -23,6 +23,13 @@ public abstract class Engine implements Runnable {
 
 	}
 
+	/**
+	 * Method used for overriding.
+	 */
+	public void customSetup() {
+		
+	}
+	
 	public void start() {
 		thread.start();
 	}
@@ -33,6 +40,8 @@ public abstract class Engine implements Runnable {
 			setupDisplay();
 			setupOpenGL();
 
+			customSetup();
+			
 			int frames = 0;
 			int fps = 0;
 			long timer = System.currentTimeMillis();
@@ -44,6 +53,7 @@ public abstract class Engine implements Runnable {
 				render();
 
 				Display.update();
+				Display.sync(120);
 
 				if (System.currentTimeMillis() > timer + 1000) {
 					timer = System.currentTimeMillis();
