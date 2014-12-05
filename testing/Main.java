@@ -1,3 +1,5 @@
+import static org.lwjgl.opengl.GL11.*;
+
 import com.core.Engine;
 
 
@@ -16,6 +18,7 @@ public class Main extends Engine {
 
 	@Override
 	public void render() {
+//		glClear(GL_COLOR_BUFFER_BIT);
 
 	}
 

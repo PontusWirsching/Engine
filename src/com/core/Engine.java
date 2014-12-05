@@ -32,7 +32,7 @@ public abstract class Engine implements Runnable {
 	public boolean closeRequested = false;
 
 	private boolean running = false;
-	
+
 	public Engine(int width, int height, String title) {
 		TITLE = title;
 		WIDTH = width;
@@ -41,10 +41,18 @@ public abstract class Engine implements Runnable {
 	}
 
 	/**
-	 * Event that calls when engine stopped.
+	 * Event that calls when engine stopped. If this is overridden, remember to
+	 * call super.onExit(); !!
 	 */
 	public void onExit() {
 		running = false;
+		try {
+			Display.destroy();
+		} catch (Exception e) {
+
+		}
+		frame.dispose();
+		System.exit(0);
 	}
 
 	/**
@@ -52,6 +60,7 @@ public abstract class Engine implements Runnable {
 	 */
 	public void start() {
 		running = true;
+		thread.start();
 		frame.setVisible(true);
 	}
 
@@ -60,16 +69,18 @@ public abstract class Engine implements Runnable {
 	 */
 	public void setup() {
 		frameSetup();
+
+		thread = new Thread(this, "RENDER_THREAD");
+
 	}
 
 	/**
 	 * Sets up the JFrame and adds the OpenGL element to it.
 	 */
 	public void frameSetup() {
-		
+
 		frame = new Frame(TITLE);
 		frame.setLayout(new BorderLayout());
-		frame.setResizable(true);
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -82,15 +93,14 @@ public abstract class Engine implements Runnable {
 		try {
 
 			Display.setParent(canvas);
-	        Display.setVSyncEnabled(true);
-	        frame.setPreferredSize(new Dimension(WIDTH,HEIGHT));
-			frame.setLocationRelativeTo(null);
+			Display.setVSyncEnabled(true);
 
-	        
-	        frame.pack();
-			
-	        Display.create();
-	        
+			frame.setPreferredSize(new Dimension(1024, 786));
+			frame.setMinimumSize(new Dimension(800, 600));
+			frame.pack();
+			frame.setVisible(true);
+			Display.create();
+
 		} catch (Exception e) {
 
 		}
@@ -121,18 +131,26 @@ public abstract class Engine implements Runnable {
 		double delta = 0;
 		int frames = 0;
 		int updates = 0;
-		while(running) {
+		while (running) {
 			long now = System.nanoTime();
 			delta += (now - LT) / ns;
 			LT = now;
-			while(delta >= 1) {
+			while (delta >= 1) {
 				update();
 				updates++;
 				delta--;
 			}
+			if (Display.isCloseRequested() || closeRequested) {
+				onExit();
+			}
 			render();
+			try {
+				Display.update();
+			} catch (Exception e) {
+
+			}
 			frames++;
-			if(System.currentTimeMillis() - timer > 1000) {
+			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 				System.out.println("FPS: " + frames + ", UPS: " + updates);
 				frames = 0;
