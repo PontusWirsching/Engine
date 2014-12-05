@@ -1,3 +1,4 @@
+
 package com.core;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -68,7 +69,7 @@ public abstract class Engine implements Runnable {
 		glMatrixMode(GL_PROJECTION);
 		glViewport(0, 0, width, height);
 		glLoadIdentity();
-		gluPerspective((float) 80, 16/9, 0.001f, 1000f);
+		gluPerspective((float) 80,(float)(width)/(float)height, 0.001f, 1000f);
 //		glOrtho(0, width, height, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 	}
