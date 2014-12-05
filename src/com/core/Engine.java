@@ -68,8 +68,8 @@ public abstract class Engine implements Runnable {
 		glMatrixMode(GL_PROJECTION);
 		glViewport(0, 0, width, height);
 		glLoadIdentity();
-//		gluPerspective((float) 80, width / height, 0.001f, 1000f);
-		glOrtho(0, width, height, 0, 1, -1);
+		gluPerspective((float) 80, 16/9, 0.001f, 1000f);
+//		glOrtho(0, width, height, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 	}
 

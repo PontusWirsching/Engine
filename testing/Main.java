@@ -1,6 +1,7 @@
 import static org.lwjgl.opengl.GL11.*;
 
 import com.core.Engine;
+import com.core.graphics.Graphics;
 
 
 public class Main extends Engine {
@@ -20,16 +21,12 @@ public class Main extends Engine {
 	public void render() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		glBegin(GL_QUADS);
-		{
-			glColor3d(1, 1, 1);
-			glVertex2i(50, 50);
-			glVertex2i(100, 50);
-			glVertex2i(100, 100);
-			glVertex2i(50, 100);
-			
-		}
-		glEnd();
+		glTranslatef(0, 0, -5);
+		
+		Graphics.drawCube(0, 0, 0, 1, 1, 1);
+		
+		glTranslatef(0, 0, 5);
+
 		
 	}
 
